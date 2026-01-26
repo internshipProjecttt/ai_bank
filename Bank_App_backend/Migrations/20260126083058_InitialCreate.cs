@@ -54,7 +54,6 @@ namespace Bank_App.Migrations
                     AccountId = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserAccountId = table.Column<int>(type: "int", nullable: false),
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -62,17 +61,17 @@ namespace Bank_App.Migrations
                 {
                     table.PrimaryKey("PK_Transactions", x => x.TransactionId);
                     table.ForeignKey(
-                        name: "FK_Transactions_UserAccounts_UserAccountId",
-                        column: x => x.UserAccountId,
+                        name: "FK_Transactions_UserAccounts_AccountId",
+                        column: x => x.AccountId,
                         principalTable: "UserAccounts",
                         principalColumn: "UserAccountId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_UserAccountId",
+                name: "IX_Transactions_AccountId",
                 table: "Transactions",
-                column: "UserAccountId");
+                column: "AccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserAccounts_UserId",

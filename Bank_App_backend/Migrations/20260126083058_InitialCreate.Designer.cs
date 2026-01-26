@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bank_App.Migrations
 {
     [DbContext(typeof(BankContext))]
-    [Migration("20260120103724_InitialCreate")]
+    [Migration("20260126083058_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -50,12 +50,9 @@ namespace Bank_App.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserAccountId")
-                        .HasColumnType("int");
-
                     b.HasKey("TransactionId");
 
-                    b.HasIndex("UserAccountId");
+                    b.HasIndex("AccountId");
 
                     b.ToTable("Transactions");
                 });
@@ -106,7 +103,7 @@ namespace Bank_App.Migrations
                 {
                     b.HasOne("Bank_App.Models.UserAccount", "UserAccount")
                         .WithMany("Transactions")
-                        .HasForeignKey("UserAccountId")
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
