@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using Bank_App.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Bank_App.Data
@@ -8,6 +9,7 @@ namespace Bank_App.Data
          public BankContext(DbContextOptions<BankContext> options) : base(options)
         {
         }
+
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
 
