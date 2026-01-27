@@ -40,21 +40,84 @@ export default function FinanceDashboard() {
     return localStorage.getItem('userID') || 'default-user-id';
   }
 
-  const transactions = [
-    { id: 1, icon: '🍴', name: 'Restaurant Dinner', category: 'Food & Dining', time: 'Today, 7:32 PM', amount: -45.50, status: 'Pending', color: 'bg-blue-100' },
-    { id: 2, icon: '💼', name: 'Salary Payment', category: 'Income', time: 'Today, 8:00 AM', amount: 3500.00, status: 'Completed', color: 'bg-green-100' },
-    { id: 3, icon: '🛒', name: 'Online Shopping', category: 'Shopping', time: 'Yesterday, 3:15 PM', amount: -129.99, status: 'Completed', color: 'bg-purple-100' },
-    { id: 4, icon: '🚌', name: 'Public Transport', category: 'Transport', time: 'Yesterday, 8:42 AM', amount: -12.50, status: 'Completed', color: 'bg-orange-100' },
-    { id: 5, icon: '🎬', name: 'Movie Tickets', category: 'Entertainment', time: '2 days ago', amount: -28.00, status: 'Completed', color: 'bg-pink-100' },
-    { id: 6, icon: '⛽', name: 'Gas Station', category: 'Transport', time: '3 days ago', amount: -65.00, status: 'Completed', color: 'bg-red-100' }
-  ];
+type Transaction = {
+  date: string | number | Date;
+  id: number;
+  amount: number;
+  category: string;
+  type: string;
+  color?: string;
+  icon?: string;
+  name?: string;
+  time?: string;
+  status?: string;
+};
 
-  const spendingData = [
-    { category: 'Food & Dining', amount: 1245, percentage: 70, color: 'bg-blue-500' },
-    { category: 'Shopping', amount: 890, percentage: 50, color: 'bg-purple-500' },
-    { category: 'Transport', amount: 567, percentage: 32, color: 'bg-red-500' },
-    { category: 'Entertainment', amount: 432, percentage: 24, color: 'bg-pink-500' }
-  ];
+export default function FinanceDashboard() {
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState('User');
+
+useEffect(() => {
+  // Kullanıcı bilgisini çek
+  fetch('/api/user/1')  // şimdilik ID=1, ileride login'den gelecek
+    .then(res => {
+      if (!res.ok) throw new Error("User API error");
+      return res.json();
+    })
+    .then(data => {
+      setUserName(data.name || data.Name); // C#'ta Name büyük harfle olabilir
+    })
+    .catch(err => {
+      console.log('User fetch error:', err);
+    });
+}, []);
+
+useEffect(() => {
+  fetch('/api/transaction')
+    .then(res => {
+      if (!res.ok) throw new Error("API error: " + res.status);
+      return res.json();
+    })
+    .then(data => {
+      const categoryIcons: { [key: string]: { icon: string; color: string } } = {
+        'Food & Dining': { icon: '🍔', color: 'bg-yellow-100' },
+        'Shopping': { icon: '🛍️', color: 'bg-pink-100' },
+        'Transport': { icon: '🚗', color: 'bg-blue-100' },
+        'Entertainment': { icon: '🎬', color: 'bg-purple-100' },
+        'Utilities': { icon: '💡', color: 'bg-green-100' },
+      };
+
+      const mapped = data.map((item: any) => {
+        const categoryInfo = categoryIcons[item.category] || { icon: '📌', color: 'bg-gray-100' };
+        return {
+          id: item.transactionId,
+          amount: item.type === 'expense' ? -Math.abs(item.amount) : item.amount,
+          category: item.category,
+          type: item.type,
+          date: item.transactionDate,
+          name: item.category,
+          time: new Date(item.transactionDate).toLocaleDateString(),
+          icon: categoryInfo.icon,
+          color: categoryInfo.color,
+          status: 'Completed',
+        };
+      });
+      setTransactions(mapped);
+      setLoading(false);   // burası önemli
+    })
+    .catch(err => {
+      console.log(err);
+      setLoading(false);   // hata olsa bile loading bitsin
+    });
+}, []);
+
+
+  const filteredTransactions = selectedCategory === 'All Categories'
+    ? transactions
+    : transactions.filter(tx => tx.category === selectedCategory);
+
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -100,8 +163,8 @@ export default function FinanceDashboard() {
         <div className="bg-white border-b px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-sm text-gray-500">Welcome back, manage your finances</p>
+              <h1 className="text-2xl font-bold text-gray-900">{userName}</h1>
+              <p className="text-sm text-gray-500">Welcome back, manage your finances!</p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="relative">
@@ -213,7 +276,7 @@ export default function FinanceDashboard() {
               </button>
             </div>
 
-            {/* Spending by Category */}
+            {/* Spending by Category
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-6">Spending by Category</h3>
               <div className="space-y-5">
@@ -230,6 +293,7 @@ export default function FinanceDashboard() {
                 ))}
               </div>
             </div>
+            */}
           </div>
 
           {/* Right Column - Recent Transactions & Quick Actions */}
@@ -257,64 +321,37 @@ export default function FinanceDashboard() {
               </div>
 
               <div className="space-y-4">
-                {transactions.map((tx) => (
-                  <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-12 h-12 ${tx.color} rounded-lg flex items-center justify-center text-xl`}>
-                        {tx.icon}
+                {filteredTransactions.length > 0 ? (
+                  filteredTransactions.map((tx) => (
+                    <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-12 h-12 ${tx.color} rounded-lg flex items-center justify-center text-xl`}>
+                          {tx.icon}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{tx.name}</p>
+                          <p className="text-sm text-gray-500">{tx.category} • {tx.time}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">{tx.name}</p>
-                        <p className="text-sm text-gray-500">{tx.category} • {tx.time}</p>
+                      <div className="text-right">
+                        <p className={`font-semibold ${tx.amount > 0 ? 'text-green-600' : 'text-gray-900'}`}>
+                          {tx.amount > 0 ? '+' : '-'}${Math.abs(tx.amount).toFixed(2)}
+                        </p>
+                        <p className={`text-xs ${tx.status === 'Pending' ? 'text-yellow-600' : 'text-green-600'}`}>
+                          {tx.status}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className={`font-semibold ${tx.amount > 0 ? 'text-green-600' : 'text-gray-900'}`}>
-                        {tx.amount > 0 ? '+' : ''}${Math.abs(tx.amount).toFixed(2)}
-                      </p>
-                      <p className={`text-xs ${tx.status === 'Pending' ? 'text-yellow-600' : 'text-green-600'}`}>
-                        {tx.status}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 py-4">No transactions found</p>
+                )}
               </div>
 
               <button className="w-full mt-4 text-indigo-600 font-semibold py-2 hover:bg-indigo-50 rounded-lg transition">
                 View All Transactions →
               </button>
             </div>
-
-            {/* Quick Actions }
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-6">Quick Actions</h3>
-              <div className="grid grid-cols-4 gap-4">
-                <button className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-xl hover:border-indigo-600 hover:bg-indigo-50 transition">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                    <Camera className="text-blue-600" size={20} />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">Scan Receipt</span>
-                </button>
-                <button className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-xl hover:border-green-600 hover:bg-green-50 transition">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
-                    <Plus className="text-green-600" size={20} />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">Add Label</span>
-                </button>
-                <button className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-xl hover:border-purple-600 hover:bg-purple-50 transition">
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-2">
-                    <User className="text-purple-600" size={20} />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">Face ID</span>
-                </button>
-                <button className="flex flex-col items-center justify-center p-4 border-2 border-gray-200 rounded-xl hover:border-indigo-600 hover:bg-indigo-50 transition">
-                  <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-2">
-                    <BarChart3 className="text-indigo-600" size={20} />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">AI Insights</span>
-                </button>
-              </div>
-            </div>*/}
           </div>
         </div>
       </div>

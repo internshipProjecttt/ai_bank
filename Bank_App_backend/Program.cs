@@ -5,7 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(x =>
+        x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -28,11 +31,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseCors("AllowFrontend");   // <-- bunu ekle
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Bank API V1");
-    c.RoutePrefix = string.Empty; // Böylece http://localhost:5000/ direkt swagger açılır
+    c.RoutePrefix = string.Empty;
 });
 
 app.UseCors("AllowFrontend");
@@ -40,3 +45,4 @@ app.UseCors("AllowFrontend");
 app.MapControllers();
 
 app.Run();
+
