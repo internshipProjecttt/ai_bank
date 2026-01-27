@@ -2,6 +2,43 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Bell, TrendingUp, TrendingDown, DollarSign, CreditCard, Plus, Camera, Scan, User, BarChart3, Home, FileText, Lock, Settings } from 'lucide-react';
 
+interface DashboardStats{
+  accountId: number;
+  totalBalance: number;
+  balanceChange: number;
+  totalIncome: number;
+  incomeChange: number;
+  totalExpense: number;
+  expensesChange: number;
+  bonusPoints: number;
+  bonusChange: number;  
+}
+
+export default function FinanceDashboard() {
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [stats, setStats]= useState<DashboardStats | null>(null);
+  const [loading, setLoading]= useState(true);
+
+  useEffect(()=>{
+    const fetchStates = async()=>{
+      try{
+        const acc_id= 1;
+        const response = await fetch(`http://localhost:5000/api/transaction/account/${acc_id}/stats`);
+        const data= await response.json();
+        setStats(data);
+
+      }catch(e){
+        console.error("Error fetching dashboard stats: ", e);        
+      }finally{
+        setLoading(false);
+      }
+    }
+    fetchStates();
+  }, []);
+
+  function getUserID(){
+    return localStorage.getItem('userID') || 'default-user-id';
+  }
 
 type Transaction = {
   date: string | number | Date;
@@ -156,7 +193,7 @@ useEffect(() => {
               <span className="text-green-600 text-sm font-semibold">+12.5%</span>
             </div>
             <p className="text-gray-500 text-sm">Total Balance</p>
-            <p className="text-2xl font-bold text-gray-900">$24,567.89</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.totalBalance}</p>
           </div>
 
           <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -167,7 +204,7 @@ useEffect(() => {
               <span className="text-blue-600 text-sm font-semibold">+8.2%</span>
             </div>
             <p className="text-gray-500 text-sm">Income</p>
-            <p className="text-2xl font-bold text-gray-900">$12,450.00</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.totalIncome}</p>
           </div>
 
           <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -178,7 +215,7 @@ useEffect(() => {
               <span className="text-red-600 text-sm font-semibold">-3.1%</span>
             </div>
             <p className="text-gray-500 text-sm">Expenses</p>
-            <p className="text-2xl font-bold text-gray-900">$8,234.50</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.totalExpense}</p>
           </div>
 
          <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -189,7 +226,7 @@ useEffect(() => {
               <span className="text-yellow-600 text-sm font-semibold">+250</span>
             </div>
             <p className="text-gray-500 text-sm">Bonus Points</p>
-            <p className="text-2xl font-bold text-gray-900">3,245</p>
+            <p className="text-2xl font-bold text-gray-900">{3000}</p>
           </div>
         </div>
 

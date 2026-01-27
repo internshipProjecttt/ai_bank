@@ -18,7 +18,7 @@ namespace Bank_App.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
-                "Server=localhost,1433;Database=BankDB2;User Id=sa;Password=Test1234!;TrustServerCertificate=True;"
+                "Server=192.168.1.36;Database=BankDB2;User Id=sa;Password=Test1234!;Encrypt=false;TrustServerCertificate=True;"
             );
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

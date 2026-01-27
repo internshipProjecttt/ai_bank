@@ -121,5 +121,24 @@ namespace Bank_App.Repositories
                 .Take(count)
                 .ToListAsync();
         }
+
+        public async Task<decimal> GetTotalIncomeAsync(int accountId) {
+            return await _transactionRepo.Transactions
+                .Where(t=> t.AccountId == accountId && t.Type=="Income")
+                .SumAsync(t=> t.Amount);
+        }  
+        public async Task<decimal> GetTotalExpenseAsync(int accountId)
+        {
+            return await _transactionRepo.Transactions
+                .Where(t=> t.AccountId == accountId && t.Type == "Expense")
+                .SumAsync(t=> t.Amount);
+        }
+
+        public async Task<decimal> GetTotalBalanceAsync(int accountId)
+        {
+            var totalExpense= await GetTotalExpenseAsync(accountId);
+            var totalIncome= await GetTotalIncomeAsync(accountId);
+            return totalIncome + totalExpense;
+        }
     }
 }
