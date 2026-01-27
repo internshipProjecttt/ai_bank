@@ -13,11 +13,26 @@ interface DashboardStats{
   bonusPoints: number;
   bonusChange: number;  
 }
+type Transaction = {
+  date: string | number | Date;
+  id: number;
+  amount: number;
+  category: string;
+  type: string;
+  color?: string;
+  icon?: string;
+  name?: string;
+  time?: string;
+  status?: string;
+};
 
 export default function FinanceDashboard() {
+  
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [stats, setStats]= useState<DashboardStats | null>(null);
   const [loading, setLoading]= useState(true);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [userName, setUserName] = useState('User');
 
   useEffect(()=>{
     const fetchStates = async()=>{
@@ -35,83 +50,63 @@ export default function FinanceDashboard() {
     }
     fetchStates();
   }, []);
-
-  function getUserID(){
-    return localStorage.getItem('userID') || 'default-user-id';
-  }
-
-type Transaction = {
-  date: string | number | Date;
-  id: number;
-  amount: number;
-  category: string;
-  type: string;
-  color?: string;
-  icon?: string;
-  name?: string;
-  time?: string;
-  status?: string;
-};
-
-export default function FinanceDashboard() {
-  const [selectedCategory, setSelectedCategory] = useState('All Categories');
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState('User');
-
-useEffect(() => {
-  // Kullanıcı bilgisini çek
-  fetch('/api/user/1')  // şimdilik ID=1, ileride login'den gelecek
-    .then(res => {
-      if (!res.ok) throw new Error("User API error");
-      return res.json();
-    })
-    .then(data => {
-      setUserName(data.name || data.Name); // C#'ta Name büyük harfle olabilir
-    })
-    .catch(err => {
-      console.log('User fetch error:', err);
-    });
-}, []);
-
-useEffect(() => {
-  fetch('/api/transaction')
-    .then(res => {
-      if (!res.ok) throw new Error("API error: " + res.status);
-      return res.json();
-    })
-    .then(data => {
-      const categoryIcons: { [key: string]: { icon: string; color: string } } = {
-        'Food & Dining': { icon: '🍔', color: 'bg-yellow-100' },
-        'Shopping': { icon: '🛍️', color: 'bg-pink-100' },
-        'Transport': { icon: '🚗', color: 'bg-blue-100' },
-        'Entertainment': { icon: '🎬', color: 'bg-purple-100' },
-        'Utilities': { icon: '💡', color: 'bg-green-100' },
-      };
-
-      const mapped = data.map((item: any) => {
-        const categoryInfo = categoryIcons[item.category] || { icon: '📌', color: 'bg-gray-100' };
-        return {
-          id: item.transactionId,
-          amount: item.type === 'expense' ? -Math.abs(item.amount) : item.amount,
-          category: item.category,
-          type: item.type,
-          date: item.transactionDate,
-          name: item.category,
-          time: new Date(item.transactionDate).toLocaleDateString(),
-          icon: categoryInfo.icon,
-          color: categoryInfo.color,
-          status: 'Completed',
-        };
+    useEffect(() => {
+    // Kullanıcı bilgisini çek
+    fetch('/api/user/1')  // şimdilik ID=1, ileride login'den gelecek
+      .then(res => {
+        if (!res.ok) throw new Error("User API error");
+        return res.json();
+      })
+      .then(data => {
+        setUserName(data.name || data.Name); // C#'ta Name büyük harfle olabilir
+      })
+      .catch(err => {
+        console.log('User fetch error:', err);
       });
-      setTransactions(mapped);
-      setLoading(false);   // burası önemli
-    })
-    .catch(err => {
-      console.log(err);
-      setLoading(false);   // hata olsa bile loading bitsin
-    });
-}, []);
+    }, []);
+    useEffect(() => {
+      fetch('/api/transaction')
+        .then(res => {
+          if (!res.ok) throw new Error("API error: " + res.status);
+          return res.json();
+        })
+        .then(data => {
+          const categoryIcons: { [key: string]: { icon: string; color: string } } = {
+            'Food & Dining': { icon: '🍔', color: 'bg-yellow-100' },
+            'Shopping': { icon: '🛍️', color: 'bg-pink-100' },
+            'Transport': { icon: '🚗', color: 'bg-blue-100' },
+            'Entertainment': { icon: '🎬', color: 'bg-purple-100' },
+            'Utilities': { icon: '💡', color: 'bg-green-100' },
+          };
+
+          const mapped = data.map((item: any) => {
+            const categoryInfo = categoryIcons[item.category] || { icon: '📌', color: 'bg-gray-100' };
+            return {
+              id: item.transactionId,
+              amount: item.type === 'expense' ? -Math.abs(item.amount) : item.amount,
+              category: item.category,
+              type: item.type,
+              date: item.transactionDate,
+              name: item.category,
+              time: new Date(item.transactionDate).toLocaleDateString(),
+              icon: categoryInfo.icon,
+              color: categoryInfo.color,
+              status: 'Completed',
+            };
+          });
+          setTransactions(mapped);
+          setLoading(false);   // burası önemli
+        })
+        .catch(err => {
+          console.log(err);
+          setLoading(false);   // hata olsa bile loading bitsin
+        });
+    },[]);
+
+      function getUserID(){
+        return localStorage.getItem('userID') || 'default-user-id';
+      }
+
 
 
   const filteredTransactions = selectedCategory === 'All Categories'
