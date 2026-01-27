@@ -21,5 +21,8 @@ namespace Bank_App.Repositories.Interfaces
         Task<Transaction?> reverseTransactionAsync(int transaction_id);
         Task<UserAccount?> GetAccountByTransactionIdAsync(int transactionId);
         Task<List<Transaction>> GetRecentTransactionsByAccountAsync(int accountId, int count);
+        Task<decimal> GetTotalIncomeAsync(int accountId);
+        Task<decimal> GetTotalExpenseAsync(int accountId);
+        Task<decimal> GetTotalBalanceAsync(int accountId);
     }
 }
