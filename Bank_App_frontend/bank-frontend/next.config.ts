@@ -1,7 +1,6 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-   async rewrites() {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  async rewrites() {
     return [
       {
         source: '/api/:path*',
@@ -11,4 +10,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
