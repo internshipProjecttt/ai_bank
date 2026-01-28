@@ -10,7 +10,7 @@ interface DashboardStats{
   incomeChange: number;
   totalExpense: number;
   expensesChange: number;
-  bonusPoints: number;
+  totalBonusPoints: number;
   bonusChange: number;  
 }
 type Transaction = {
@@ -185,7 +185,9 @@ export default function FinanceDashboard() {
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                 <DollarSign className="text-green-600" size={20} />
               </div>
-              <span className="text-green-600 text-sm font-semibold">+12.5%</span>
+              <span className={stats?.balanceChange && stats.balanceChange >= 0 ? "text-green-600" : "text-red-600"}>
+                {stats?.balanceChange && stats.balanceChange >= 0 ? "+" : "-"}{stats?.balanceChange}%
+              </span>
             </div>
             <p className="text-gray-500 text-sm">Total Balance</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalBalance}</p>
@@ -196,7 +198,9 @@ export default function FinanceDashboard() {
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                 <TrendingUp className="text-blue-600" size={20} />
               </div>
-              <span className="text-blue-600 text-sm font-semibold">+8.2%</span>
+              <span className={stats?.incomeChange && stats.incomeChange >= 0 ? "text-blue-600" : "text-red-600"}>
+                {stats?.incomeChange && stats.incomeChange >= 0 ? "+" : "-"}{stats?.incomeChange}%
+              </span>
             </div>
             <p className="text-gray-500 text-sm">Income</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalIncome}</p>
@@ -207,7 +211,9 @@ export default function FinanceDashboard() {
               <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                 <TrendingDown className="text-red-600" size={20} />
               </div>
-              <span className="text-red-600 text-sm font-semibold">-3.1%</span>
+              <span className={stats?.expensesChange && stats.expensesChange >= 0 ? "text-red-600" : "text-green-600"}>
+                {stats?.expensesChange && stats.expensesChange >= 0 ? "+" : "-"}{stats?.expensesChange}%
+              </span>
             </div>
             <p className="text-gray-500 text-sm">Expenses</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalExpense}</p>
@@ -218,10 +224,12 @@ export default function FinanceDashboard() {
               <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
                 <span className="text-2xl">⭐</span>
               </div>
-              <span className="text-yellow-600 text-sm font-semibold">+250</span>
+              <span className={stats?.bonusChange && stats.bonusChange >= 0 ? "text-yellow-600" : "text-red-600"}>
+                {stats?.bonusChange && stats.bonusChange >= 0 ? "+" : "-"}{stats?.bonusChange}
+              </span>
             </div>
             <p className="text-gray-500 text-sm">Bonus Points</p>
-            <p className="text-2xl font-bold text-gray-900">{3000}</p>
+            <p className="text-2xl font-bold text-gray-900">{stats?.totalBonusPoints}</p>
           </div>
         </div>
 

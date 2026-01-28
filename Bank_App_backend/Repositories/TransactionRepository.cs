@@ -140,5 +140,96 @@ namespace Bank_App.Repositories
             var totalIncome= await GetTotalIncomeAsync(accountId);
             return totalIncome + totalExpense;
         }
+
+        public async Task<int> GetTotalBonusPointsAsync(int accountId)
+        {
+            var userAccount = await _transactionRepo.UserAccounts
+                .FirstOrDefaultAsync(ua=> ua.UserAccountId==accountId);
+            if(userAccount==null) throw new Exception($"Account with ID {accountId} could not be found");
+            //Son sıfırlama tarihini kontrol et ve gerekiyorsa sıfırla
+            if(userAccount.BonusPointsLastResetDate.Year < DateTime.Now.Year){
+                userAccount.BonusPoints = 0;
+                userAccount.BonusPointsLastResetDate = DateTime.Now;
+                await _transactionRepo.SaveChangesAsync();
+            }
+            return userAccount.BonusPoints;
+        }
+
+        public async Task<List<decimal>> GetMonthlySummaryAsync(int accountId){
+            var now=DateTime.Now;
+
+            var currentMonthStart= new DateTime(now.Year, now.Month,1);
+            var previousMonthStart= currentMonthStart.AddMonths(-1);
+            var previousMonthEnd= currentMonthStart.AddDays(-1);
+
+            var currentMonthTransactions= _transactionRepo.Transactions
+                .Where(t=> t.AccountId== accountId && t.TransactionDate >= currentMonthStart);
+
+            var currentMonthIncome = await currentMonthTransactions
+                .Where(t => t.Type == "Income")
+                .SumAsync(t => t.Amount);
+
+            var currentMonthExpense = await currentMonthTransactions
+                .Where(t => t.Type == "Expense")
+                .SumAsync(t => t.Amount);
+            
+            var currentMonthBalance = currentMonthIncome - currentMonthExpense;
+
+            var previousMonthTransactions= _transactionRepo.Transactions
+                .Where(t=> t.AccountId== accountId && t.TransactionDate >= previousMonthStart && t.TransactionDate <= previousMonthEnd);
+
+            var previousMonthIncome = await previousMonthTransactions
+                .Where(t => t.Type == "Income")
+                .SumAsync(t => t.Amount);
+
+            var previousMonthExpense = await previousMonthTransactions
+                .Where(t => t.Type == "Expense")
+                .SumAsync(t => t.Amount);
+
+            var previousMonthBalance = previousMonthIncome - previousMonthExpense; 
+
+            decimal incomeChange=  previousMonthIncome == 0
+            ? 0
+            : ((currentMonthIncome - previousMonthIncome) / previousMonthIncome) * 100;
+
+            decimal expenseChange=  previousMonthExpense == 0
+            ? 0
+            : ((currentMonthExpense - previousMonthExpense) / previousMonthExpense) * 100;
+
+            decimal balanceChange=  previousMonthBalance == 0
+            ? 0
+            : ((currentMonthBalance - previousMonthBalance) / previousMonthBalance) * 100;
+
+            return new List<decimal> { 
+                incomeChange,
+                expenseChange,
+                balanceChange
+             };
+        }
+
+        public async Task<int> GetMonthlyBonusPointsAsync(int accountId){
+            var now= DateTime.Now;
+            var userAccount = await _transactionRepo.UserAccounts
+                .FirstOrDefaultAsync(ua=> ua.UserAccountId==accountId);
+            if(userAccount==null) throw new Exception($"Account with ID {accountId} could not be found");
+
+            var currentMonthStart= new DateTime(now.Year, now.Month,1);
+            var previousMonthStart= currentMonthStart.AddMonths(-1);
+            var previousMonthEnd= currentMonthStart.AddDays(-1);
+
+            var currentMonthBonusPoints= await _transactionRepo.UserAccounts
+                .Where(ua=> ua.UserAccountId== accountId && ua.BonusPointsLastResetDate >= currentMonthStart)
+                .SumAsync(ua=> ua.BonusPoints);
+
+            var previousMonthBonusPoints= await _transactionRepo.UserAccounts
+                .Where(ua=> ua.UserAccountId== accountId && ua.BonusPointsLastResetDate >= previousMonthStart && ua.BonusPointsLastResetDate <= previousMonthEnd)
+                .SumAsync(ua=> ua.BonusPoints);
+
+            var bonusChange= previousMonthBonusPoints == 0
+            ? 0
+            : ((currentMonthBonusPoints - previousMonthBonusPoints) / previousMonthBonusPoints) * 100;
+            return (int)bonusChange;
+            
+        }
     }
 }
