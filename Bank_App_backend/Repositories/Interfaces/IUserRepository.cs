@@ -9,5 +9,7 @@ namespace Bank_App.Repositories.Interfaces
         Task<User> AddUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(int userId);
+        Task<User?> GetUserWithAccountsAsync(int id);
+
     }
 }
