@@ -29,12 +29,20 @@ namespace Bank_App.Controllers
                 var totalIncome = await _transactionRepository.GetTotalIncomeAsync(accountId);
                 var totalExpense = await _transactionRepository.GetTotalExpenseAsync(accountId);
                 var totalBalance = await _transactionRepository.GetTotalBalanceAsync(accountId);
+                var totalBonusPoints = await _transactionRepository.GetTotalBonusPointsAsync(accountId);
+                List<decimal> monthlySummary = await _transactionRepository.GetMonthlySummaryAsync(accountId);
+                var bonusChange= await _transactionRepository.GetMonthlyBonusPointsAsync(accountId);
 
                 var stats = new
                 {
                     TotalIncome = totalIncome,
                     TotalExpense = totalExpense,
-                    TotalBalance = totalBalance
+                    TotalBalance = totalBalance,
+                    TotalBonusPoints = totalBonusPoints,
+                    BonusChange = bonusChange,
+                    incomeChange= Math.Round(monthlySummary[0],2),
+                    expensesChange= Math.Round(monthlySummary[1],2),
+                    balanceChange= Math.Round(monthlySummary[2],2)
                 };
 
                 return Ok(stats);
