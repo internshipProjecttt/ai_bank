@@ -49,5 +49,12 @@ namespace Bank_App.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<User?> GetUserWithAccountsAsync(int id)
+        {
+            return await _context.Users
+                .Include(u => u.UserAccounts) 
+                .FirstOrDefaultAsync(u => u.UserId == id);
+        }
     }
 }

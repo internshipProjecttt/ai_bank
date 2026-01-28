@@ -36,7 +36,6 @@ namespace Bank_App.Controllers
         }
 
         // POST: api/user
-        //jdjdndjdjdjd
         [HttpPost]
         public async Task<IActionResult> AddUser([FromBody] User user)
         {
@@ -88,6 +87,39 @@ namespace Bank_App.Controllers
             await _userRepository.DeleteUserAsync(id);
             return NoContent(); // ✅ 204 No Content
         }
+
+
+        // Hesaplarıyla birlikte user getir
+        // GET: api/user/5/with-accounts
+        [HttpGet("{id}/with-accounts")]
+        public async Task<IActionResult> GetUserWithAccounts(int id)
+        {
+            var user = await _userRepository.GetUserWithAccountsAsync(id);
+            
+            if (user == null)
+            {
+                return NotFound($"User with ID {id} not found");
+            }
+
+            // ✅ Frontend için düzenlenmiş response
+            var accounts = user.UserAccounts?.Select(ua => (dynamic)new
+            {
+                AccountId = ua.UserAccountId,  // ✅ UserAccountId
+                AccountName = $"Hesap #{ua.UserAccountId}",  // ✅ İsim yok, kendimiz oluşturuyoruz
+                Balance = ua.Balance,
+                BonusPoints = ua.BonusPoints
+            }).ToList() ?? new List<dynamic>();
+
+            var response = new
+            {
+                UserId = user.UserId,
+                Name = user.Name,
+                Email = user.Email,
+                AccountCount = user.UserAccounts?.Count ?? 0,
+                Accounts = accounts
+            };
+
+            return Ok(response);
+        }
     }
-    //okey
 }
