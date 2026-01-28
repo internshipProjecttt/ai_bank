@@ -24,5 +24,9 @@ namespace Bank_App.Repositories.Interfaces
         Task<decimal> GetTotalIncomeAsync(int accountId);
         Task<decimal> GetTotalExpenseAsync(int accountId);
         Task<decimal> GetTotalBalanceAsync(int accountId);
+        Task<int> GetTotalBonusPointsAsync(int accountId);
+        Task<List<decimal>> GetMonthlySummaryAsync(int accountId);
+        Task<int> GetMonthlyBonusPointsAsync(int accountId);
+
     }
 }
