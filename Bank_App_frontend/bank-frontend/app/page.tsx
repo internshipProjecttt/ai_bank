@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, TrendingUp, TrendingDown, DollarSign, CreditCard, Plus, Camera, Scan, User, BarChart3, Home, FileText, Lock, Settings } from 'lucide-react';
+import { Search, Bell, TrendingUp, TrendingDown, DollarSign, CreditCard, Plus, Camera, Scan, User, BarChart3, Home, FileText, Lock, Settings, X } from 'lucide-react';
 
 interface DashboardStats{
   accountId: number;
@@ -25,6 +25,20 @@ type Transaction = {
   time?: string;
   status?: string;
 };
+interface Account {
+  accountId: number;
+  accountNumber: string;
+  accountName?: string;
+  balance: number;
+  bonusPoints: number;
+}
+interface UserData {
+  userId: number;
+  name: string;
+  email: string;
+  accountCount: number;
+  accounts: Account[]; 
+}
 
 export default function FinanceDashboard() {
   
@@ -32,7 +46,15 @@ export default function FinanceDashboard() {
   const [stats, setStats]= useState<DashboardStats | null>(null);
   const [loading, setLoading]= useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [userName, setUserName] = useState('User');
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
+  const [user, setUser] = useState<UserData>({
+              userId: 0,
+              name: 'User',
+              email: '',
+              accountCount: 0,
+              accounts: []
+    });
 
   useEffect(()=>{
     const fetchStates = async()=>{
@@ -50,20 +72,27 @@ export default function FinanceDashboard() {
     }
     fetchStates();
   }, []);
+
     useEffect(() => {
-    // Kullanıcı bilgisini çek
-    fetch('/api/user/1')  // şimdilik ID=1, ileride login'den gelecek
+    fetch('http://localhost:5000/api/user/1/with-accounts')
       .then(res => {
         if (!res.ok) throw new Error("User API error");
         return res.json();
       })
       .then(data => {
-        setUserName(data.name || data.Name); // C#'ta Name büyük harfle olabilir
+        console.log('API Response:', data);
+        setUser({
+          userId: data.userId || data.UserId || 0,
+          name: data.name || data.Name || 'User',
+          email: data.email || data.Email || '',
+          accountCount: data.accountCount || data.AccountCount || 0,
+          accounts: data.accounts || data.Accounts || []
+        });
       })
       .catch(err => {
         console.log('User fetch error:', err);
       });
-    }, []);
+  }, []);
     useEffect(() => {
       fetch('/api/transaction')
         .then(res => {
@@ -113,13 +142,22 @@ export default function FinanceDashboard() {
     ? transactions
     : transactions.filter(tx => tx.category === selectedCategory);
 
+  const displayedTransactions = showAllTransactions 
+    ? filteredTransactions 
+    : filteredTransactions.slice(0, 5);
+
 
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="w-16 bg-indigo-700 flex flex-col items-center py-6 space-y-8">
         <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center font-bold text-indigo-700">
-          F
+          <button
+            onClick={() => setShowUserModal(true)}
+            className="w-10 h-10 bg-white rounded-lg flex items-center justify-center font-bold text-indigo-700 hover:bg-indigo-50 transaction-colors"
+          >
+            {user.name.charAt(0).toUpperCase()}
+            </button>
         </div>
         
         <div className="flex-1 flex flex-col space-y-6">
@@ -146,19 +184,152 @@ export default function FinanceDashboard() {
         <button className="p-3 text-white hover:bg-indigo-600 rounded-lg">
           <Settings size={20} />
         </button>
-        
-        <div className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" className="rounded-full" />
-        </div>
+
+        <button onClick={() => setShowUserModal(true)}
+                className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center hover:bg-indigo-400 transition-colors">
+                <img 
+                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
+                  alt="User" 
+                  className="rounded-full" 
+                />
+        </button>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
+        {showUserModal && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => setShowUserModal(false)}
+          >
+            <div
+              className="bg-white rounded-2xl shadow-2xl w-96 p-6 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowUserModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-600"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="flex flex-col items-center mb-6">
+              <div className="w-20 h-20 bg-indigo-500 rounded-full flex items-center justify-center mb-4">
+                <img 
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} 
+                  alt="User" 
+                  className="rounded-full" 
+                />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800">{user.name}</h2>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                    <User size={16} className="text-indigo-600" />
+                  </div>
+                  <p className="text-sm text-gray-500">İsim</p>
+                </div>
+                <p className="text-gray-800 font-medium ml-11">{user.name}</p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-blue-600">📧</span>
+                  </div>
+                  <p className="text-sm text-gray-500">E-posta</p>
+                </div>
+                <p className="text-gray-800 font-medium ml-11">{user.email}</p>
+              </div>
+
+              
+            </div>
+              {/* Hesaplar Bölümü */}
+            <div className="border-t pt-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-800">Hesaplarım</h3>
+                <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
+                  {user.accountCount} Hesap
+                </span>
+              </div>
+
+              {/* Hesap Listesi */}
+              <div className="space-y-3">
+                {user.accounts.length > 0 ? (
+                  user.accounts.map((account) => (
+                    <div 
+                      key={account.accountId}
+                      className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 border border-indigo-100 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center">
+                            <CreditCard size={20} className="text-white" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800">{account.accountName || `Account ${account.accountId}`}</p>
+                            <p className="text-xs text-gray-500">ID: {account.accountId}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-gray-800">
+                            ₺{account.balance.toLocaleString('tr-TR', { 
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2 
+                            })}
+                          </p>
+                          <p className="text-xs text-gray-500">TRY</p>
+                        </div>
+                      </div>
+                      
+                      {/* Bonus Puanlar */}
+                      <div className="flex items-center justify-between pt-3 border-t border-indigo-200">
+                        <div className="flex items-center gap-2">
+                          <span className="text-yellow-500">⭐</span>
+                          <span className="text-sm text-gray-600">Bonus Puan</span>
+                        </div>
+                        <span className="text-sm font-semibold text-indigo-600">
+                          {account.bonusPoints} puan
+                        </span>
+                      </div>
+                      
+                      <button className="w-full mt-3 text-xs text-indigo-600 hover:text-indigo-800 font-medium text-center py-2 hover:bg-indigo-50 rounded transition-colors">
+                        Detayları Gör →
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <CreditCard size={48} className="mx-auto mb-3 opacity-30" />
+                    <p>Henüz hesap bulunmuyor</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3">
+              <button className="flex-1 bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700">
+                Profili Düzenle
+              </button>
+              <button 
+                onClick={() => setShowUserModal(false)}
+                className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
         {/* Header */}
         <div className="bg-white border-b px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{userName}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{user?.name}</h1>
               <p className="text-sm text-gray-500">Welcome back, manage your finances!</p>
             </div>
             <div className="flex items-center space-x-4">
@@ -308,16 +479,12 @@ export default function FinanceDashboard() {
                     <option>Shopping</option>
                     <option>Transport</option>
                   </select>
-                  <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 flex items-center space-x-2">
-                    <Plus size={16} />
-                    <span>New Transaction</span>
-                  </button>
                 </div>
               </div>
 
               <div className="space-y-4">
-                {filteredTransactions.length > 0 ? (
-                  filteredTransactions.map((tx) => (
+                {displayedTransactions.length > 0 ? (
+                  displayedTransactions.map((tx) => (
                     <div key={tx.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
                       <div className="flex items-center space-x-4">
                         <div className={`w-12 h-12 ${tx.color} rounded-lg flex items-center justify-center text-xl`}>
@@ -343,9 +510,22 @@ export default function FinanceDashboard() {
                 )}
               </div>
 
-              <button className="w-full mt-4 text-indigo-600 font-semibold py-2 hover:bg-indigo-50 rounded-lg transition">
-                View All Transactions →
-              </button>
+              {!showAllTransactions && filteredTransactions.length > 5 && (
+                <button 
+                  onClick={() => setShowAllTransactions(true)}
+                  className="w-full mt-4 text-indigo-600 font-semibold py-2 hover:bg-indigo-50 rounded-lg transition"
+                >
+                  View All Transactions →
+                </button>
+              )}
+              {showAllTransactions && (
+                <button 
+                  onClick={() => setShowAllTransactions(false)}
+                  className="w-full mt-4 text-indigo-600 font-semibold py-2 hover:bg-indigo-50 rounded-lg transition"
+                >
+                  Show Less ↑
+                </button>
+              )}
             </div>
           </div>
         </div>
