@@ -48,5 +48,29 @@ namespace Bank_App.Repositories
             }
         }
 
+        public async Task UpdateAccountBalanceAsync(int accountId)
+        {
+            // ✅ AsNoTracking kullanmadan direkt entity'yi çek
+            var userAccount = await _context.UserAccounts
+                .FirstOrDefaultAsync(x => x.UserAccountId == accountId);
+
+            if (userAccount == null)
+                throw new Exception("Account not found");
+            
+            // ✅ Transaction'ların toplamını hesapla
+            var totalBalance = await _context.Transactions
+                .Where(t => t.AccountId == accountId)
+                .SumAsync(t => t.Amount);
+            
+            // ✅ Balance'ı güncelle
+            userAccount.Balance = totalBalance;
+            
+            // ✅ EKSTRA: Entity'nin modify edildiğini açıkça belirt
+            _context.Entry(userAccount).State = EntityState.Modified;
+            
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }
