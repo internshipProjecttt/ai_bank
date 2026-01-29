@@ -8,5 +8,6 @@ namespace Bank_App.Repositories.Interfaces
         Task<UserAccount> CreateUserAccountAsync(UserAccount account);
         Task UpdateUserAccountAsync(UserAccount account);
         Task DeleteUserAccountAsync(int userAccountId);
+        Task UpdateAccountBalanceAsync(int accountId);  
     }
 }

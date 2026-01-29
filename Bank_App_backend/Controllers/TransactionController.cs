@@ -9,10 +9,13 @@ namespace Bank_App.Controllers
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionRepository _transactionRepository;
+        private readonly IUserAccountRepository _userAccountRepository;
         
-        public TransactionController(ITransactionRepository transactionRepository)
+        public TransactionController(ITransactionRepository transactionRepository ,
+                                     IUserAccountRepository userAccountRepository)
         {
             _transactionRepository = transactionRepository;
+            _userAccountRepository = userAccountRepository;
         }
 
         // -------------------------------------------------------------------------
@@ -127,19 +130,6 @@ namespace Bank_App.Controllers
             return Ok(type);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddTransaction([FromBody] Transaction transaction)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            try {
-                var added = await _transactionRepository.addTransactionAsync(transaction);
-                if (added == null) return BadRequest("İşlem başarısız (Bakiye yetersiz olabilir).");
-                return CreatedAtAction(nameof(GetTransactionById), new { id = added.TransactionId }, added);
-            } catch(Exception ex) {
-                return BadRequest(ex.Message);
-            }
-        }
-
         [HttpPost("reverse/{transaction_id}")]
         public async Task<IActionResult> ReverseTransaction(int transaction_id)
         {
@@ -159,12 +149,18 @@ namespace Bank_App.Controllers
             return Ok(account);
         }
 
-        [HttpGet("recent/{accountId}/{count}")]
-        public async Task<IActionResult> GetRecentTransactionsByAccount(int accountId, int count)
+        [HttpGet("recent/{accountId}/updateBalance")]
+        public async Task<IActionResult> GetRecentTransactionsByAccount(int accountId)
         {
-            var transactions = await _transactionRepository.GetRecentTransactionsByAccountAsync(accountId, count);
-            if (transactions == null || transactions.Count == 0) return NotFound();
-            return Ok(transactions);
+            await _userAccountRepository.UpdateAccountBalanceAsync(accountId);
+            var account = await _userAccountRepository.GetUserAccountByIdAsync(accountId);
+            if (account == null) return NotFound("Account not found");
+            return Ok(
+                account.Transactions
+                       .OrderByDescending(t => t.TransactionDate)
+                       .Take(5)
+                       .ToList()
+            );
         }
     }
 }
