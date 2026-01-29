@@ -69,13 +69,27 @@ namespace Bank_App.Repositories
                 .Select(t => t.Type)
                 .FirstOrDefaultAsync();
         }
-        public async Task<Transaction?> addTransactionAsync(Transaction? transaction) {
-            decimal amount = transaction.Amount;
-            var user= await _transactionRepo.UserAccounts
+        public async Task<Transaction?> addTransactionAsync(Transaction? transaction) 
+        {
+            var user = await _transactionRepo.UserAccounts
                 .FirstOrDefaultAsync(ua => ua.UserAccountId == transaction.AccountId);
-            if (user == null) throw new Exception($"Transaction with Account ID {user.UserAccountId} could not be found");
-            else if (amount > user.Balance) return null;
+            
+            if (user == null) 
+                throw new Exception($"Account with ID {transaction.AccountId} could not be found");
+            
+            if (transaction.Type == "Expense" && Math.Abs(transaction.Amount) > user.Balance) 
+            {
+                return null; 
+            }
+            
             await _transactionRepo.Transactions.AddAsync(transaction);
+            
+            var totalBalance = await _transactionRepo.Transactions
+                .Where(t => t.AccountId == transaction.AccountId)
+                .SumAsync(t => t.Amount) + transaction.Amount;
+            
+            user.Balance = totalBalance;
+            
             await _transactionRepo.SaveChangesAsync();
 
             return transaction;
@@ -136,9 +150,9 @@ namespace Bank_App.Repositories
 
         public async Task<decimal> GetTotalBalanceAsync(int accountId)
         {
-            var totalExpense= await GetTotalExpenseAsync(accountId);
-            var totalIncome= await GetTotalIncomeAsync(accountId);
-            return totalIncome + totalExpense;
+            return await _transactionRepo.Transactions
+                .Where(t => t.AccountId == accountId)
+                .SumAsync(t => t.Amount);
         }
 
         public async Task<int> GetTotalBonusPointsAsync(int accountId)
