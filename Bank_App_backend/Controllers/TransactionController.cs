@@ -1,6 +1,7 @@
 using Bank_App.Models;
 using Bank_App.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Bank_App.DTOs;
 
 namespace Bank_App.Controllers
 {
@@ -162,5 +163,61 @@ namespace Bank_App.Controllers
                        .ToList()
             );
         }
+        [HttpPost("addtransaction")]
+        public async Task<IActionResult> AddTransaction([FromBody] TransactionCreateDto dto)
+        {
+            try
+            {
+                if (dto.AccountId <= 0)
+                    return BadRequest(new { error = "Invalid accountId" });
+
+                if (dto.Amount == 0)
+                    return BadRequest(new { error = "Amount cannot be zero" });
+
+                var validTypes = new[] { "Income", "Expense" };
+                if (!validTypes.Contains(dto.Type))
+                    return BadRequest(new { error = "Type must be 'Income' or 'Expense'" });
+
+                var validCategories = new[]
+                {
+                    "Eco_Mobility", "Eco_Energy", "Eco_Consumption", "Eco_Social",
+                    "Daily", "Shopping", "Housing", "Travel", "Finance", "Other"
+                };
+
+                if (!validCategories.Contains(dto.Category))
+                    return BadRequest(new { error = "Invalid category" });
+
+                var transaction = new Transaction
+                {
+                    AccountId = dto.AccountId,
+                    Category = dto.Category,
+                    Type = dto.Type,
+                    TransactionDate = DateTime.UtcNow
+                };
+
+                transaction.Amount =
+                    dto.Type == "Expense"
+                        ? -Math.Abs(dto.Amount)
+                        : Math.Abs(dto.Amount);
+
+                var result = await _transactionRepository.addTransactionAsync(transaction);
+
+                if (result == null)
+                    return BadRequest(new { error = "Insufficient balance or transaction failed" });
+
+                return Ok(new
+                {
+                    success = true,
+                    transactionId = result.TransactionId,
+                    category = result.Category
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+
     }
 }
