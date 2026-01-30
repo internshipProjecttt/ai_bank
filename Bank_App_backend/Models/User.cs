@@ -11,5 +11,6 @@ namespace Bank_App.Models
 
 
         public ICollection<UserAccount> UserAccounts { get; set; }
+        public ICollection<Notification> Notifications { get; set; }
     }
 }

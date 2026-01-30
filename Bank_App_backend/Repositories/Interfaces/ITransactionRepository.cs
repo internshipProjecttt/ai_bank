@@ -27,6 +27,7 @@ namespace Bank_App.Repositories.Interfaces
         Task<int> GetTotalBonusPointsAsync(int accountId);
         Task<List<decimal>> GetMonthlySummaryAsync(int accountId);
         Task<int> GetMonthlyBonusPointsAsync(int accountId);
+        /* Task EcoNotificationAsync(Transaction transaction); */
 
     }
 }
