@@ -101,10 +101,12 @@ export default function FinanceDashboard() {
   const [showCategoryInfo, setShowCategoryInfo] = useState(false);
   const [selectedCategoryInfo, setSelectedCategoryInfo] = useState<string | null>(null);  
   const [stats, setStats]= useState<DashboardStats | null>(null);
+  const [accountStats, setAccountStats] = useState<{ [key: number]: DashboardStats }>({});
   const [loading, setLoading]= useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showAllTransactions, setShowAllTransactions] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const [user, setUser] = useState<UserData>({
               userId: 0,
               name: 'User',
@@ -114,10 +116,18 @@ export default function FinanceDashboard() {
     });
 
   useEffect(()=>{
-    const fetchStates = async()=>{
+    // Seçili account'ı belirle (ilk account varsayılan)
+    if (user.accounts.length > 0 && selectedAccountId === null) {
+      setSelectedAccountId(user.accounts[0].accountId);
+    }
+  }, [user.accounts, selectedAccountId]);
+
+  useEffect(()=>{
+    if (selectedAccountId === null) return;
+
+    const fetchStats = async()=>{
       try{
-        const acc_id= 1;
-        const response = await fetch(`http://localhost:5000/api/transaction/account/${acc_id}/stats`);
+        const response = await fetch(`http://localhost:5000/api/transaction/account/${selectedAccountId}/stats`);
         const data= await response.json();
         setStats(data);
 
@@ -127,8 +137,8 @@ export default function FinanceDashboard() {
         setLoading(false);
       }
     }
-    fetchStates();
-  }, []);
+    fetchStats();
+  }, [selectedAccountId]);
 
     useEffect(() => {
     fetch('http://localhost:5000/api/user/1/with-accounts')
@@ -136,22 +146,41 @@ export default function FinanceDashboard() {
         if (!res.ok) throw new Error("User API error");
         return res.json();
       })
-      .then(data => {
+      .then(async (data) => {
         console.log('API Response:', data);
+        const accounts = data.accounts || data.Accounts || [];
         setUser({
           userId: data.userId || data.UserId || 0,
           name: data.name || data.Name || 'User',
           email: data.email || data.Email || '',
           accountCount: data.accountCount || data.AccountCount || 0,
-          accounts: data.accounts || data.Accounts || []
+          accounts: accounts
         });
+        
+        // Tüm accountlar için stats çek
+        const statsMap: { [key: number]: DashboardStats } = {};
+        for (const account of accounts) {
+          try {
+            const statsRes = await fetch(`http://localhost:5000/api/transaction/account/${account.accountId}/stats`);
+            const statsData = await statsRes.json();
+            statsMap[account.accountId] = statsData;
+          } catch (err) {
+            console.log(`Error fetching stats for account ${account.accountId}:`, err);
+          }
+        }
+        setAccountStats(statsMap);
       })
       .catch(err => {
         console.log('User fetch error:', err);
       });
   }, []);
     useEffect(() => {
-      fetch('/api/transaction')
+      if (selectedAccountId === null) return;
+
+      // Yeni hesaba geçince hemen transactions'ı boşalt
+      setTransactions([]);
+
+      fetch(`http://localhost:5000/api/transaction/account/${selectedAccountId}`)
         .then(res => {
           if (!res.ok) throw new Error("API error: " + res.status);
           return res.json();
@@ -194,7 +223,7 @@ export default function FinanceDashboard() {
           console.log(err);
           setLoading(false);   // hata olsa bile loading bitsin
         });
-    },[]);
+    },[selectedAccountId]);
 
       function getUserID(){
         return localStorage.getItem('userID') || 'default-user-id';
@@ -264,7 +293,7 @@ export default function FinanceDashboard() {
             onClick={() => setShowUserModal(false)}
           >
             <div
-              className="bg-white rounded-2xl shadow-2xl w-96 p-6 relative"
+              className="bg-white rounded-2xl shadow-2xl w-96 p-6 relative max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -337,7 +366,7 @@ export default function FinanceDashboard() {
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-gray-800">
-                            ${account.balance.toLocaleString('tr-TR', {
+                            ${(accountStats[account.accountId]?.totalBalance || account.balance).toLocaleString('tr-TR', {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2
                             })}
@@ -357,8 +386,14 @@ export default function FinanceDashboard() {
                         </span>
                       </div>
 
-                      <button className="w-full mt-3 text-xs text-indigo-600 hover:text-indigo-800 font-medium text-center py-2 hover:bg-indigo-50 rounded transition-colors">
-                        View Details →
+                      <button 
+                        onClick={() => {
+                          setSelectedAccountId(account.accountId);
+                          setShowUserModal(false);
+                        }}
+                        className="w-full mt-3 text-xs text-indigo-600 hover:text-indigo-800 font-medium text-center py-2 hover:bg-indigo-50 rounded transition-colors"
+                      >
+                        {selectedAccountId === account.accountId ? '✓ Selected' : 'View Details →'}
                       </button>
                     </div>
                   ))
