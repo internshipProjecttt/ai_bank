@@ -11,9 +11,11 @@ namespace Bank_App.Repositories
     public class TransactionRepository: ITransactionRepository
     {
         private readonly BankContext _transactionRepo;
+        private readonly INotificationRepository _notificationRepo;
 
-        public TransactionRepository(BankContext Context) {
+        public TransactionRepository(BankContext Context, INotificationRepository notificationRepository) {
             _transactionRepo = Context;
+            _notificationRepo= notificationRepository;
         }
         public async Task<List<Transaction>> getAllTransactionsAsync() {
             return await _transactionRepo.Transactions
@@ -92,7 +94,26 @@ namespace Bank_App.Repositories
             
             await _transactionRepo.SaveChangesAsync();
 
+            await CheckAndCreateNotification(transaction, user);
+
             return transaction;
+        }
+
+        private async Task CheckAndCreateNotification(Transaction t, UserAccount ua)
+        {
+            List<string> ecoCategories = new List<string> 
+            { 
+                "Eco_Mobility", 
+                "Eco_Energy", 
+                "Eco_Consumption", 
+                "Eco_Social" 
+            };
+            if (t.Type == "Expense" && ecoCategories.Contains(t.Category))
+            {
+                var userId = ua.UserId;
+                
+                await _notificationRepo.AddNotificationAsync(userId, t.Category);
+            }
         }
         //Hatalı işlem düzeltme
         public async Task<Transaction?> reverseTransactionAsync(int transaction_id) {
@@ -245,5 +266,16 @@ namespace Bank_App.Repositories
             return (int)bonusChange;
             
         }
+
+        /* public async Task EcoNotificationAsync(Transaction transaction)
+        {
+            List<string> ecoCategories= new List<string>{"EcoMobility", "EcoEnergy", "EcoConsumption", "EcoSocial"};
+
+            bool exists= ecoCategories.Contains(transaction.Category);
+            if (exists)
+            {
+                var notification = new Notifica
+            }
+        } */
     }
 }
