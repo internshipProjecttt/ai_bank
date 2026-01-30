@@ -14,6 +14,7 @@ namespace Bank_App.Data
         public DbSet<Transaction> Transactions { get; set; }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Notification> Notifications{get; set;}
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -34,6 +35,17 @@ namespace Bank_App.Data
                 .HasOne(ua => ua.User)
                 .WithMany(u => u.UserAccounts)
                 .HasForeignKey(ua => ua.UserId);
+
+            //User-Notification ilişkisi
+            modelBuilder.Entity<Notification>()
+                .HasOne(n=> n.user)//bir notification bir kullanıya ait
+                .WithMany(u=> u.Notifications)//bir user birden çok notificationa sahip
+                .HasForeignKey(n=>n.userId)
+                .OnDelete(DeleteBehavior.Cascade); //kullanıcı gidince bildirimleri de gider
+
+            //Index ekeme (Performansa iyi geliyormuş)
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n=> new{n.userId, n.CreateDate});                
         }
     }
 }
