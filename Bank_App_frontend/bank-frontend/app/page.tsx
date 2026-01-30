@@ -41,6 +41,13 @@ interface UserData {
   accounts: Account[];
 }
 
+interface Notification {
+  message: string;
+  createDate: string;
+  category: string;
+  isRead: boolean;
+}
+
 const categoryInfo: { [key: string]: { title: string; description: string; examples: string[] } } = {
   'Eco_Mobility': {
     title: '🚇 Yeşil Ulaşım',
@@ -105,6 +112,9 @@ export default function FinanceDashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showAllTransactions, setShowAllTransactions] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const [user, setUser] = useState<UserData>({
               userId: 0,
               name: 'User',
@@ -130,10 +140,10 @@ export default function FinanceDashboard() {
     fetchStates();
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     fetch('http://localhost:5000/api/user/1/with-accounts')
       .then(res => {
-        if (!res.ok) throw new Error("User API error");
+      if (!res.ok) throw new Error("User API error");
         return res.json();
       })
       .then(data => {
@@ -150,9 +160,9 @@ export default function FinanceDashboard() {
         console.log('User fetch error:', err);
       });
   }, []);
-    useEffect(() => {
-      fetch('/api/transaction')
-        .then(res => {
+  useEffect(() => {
+    fetch('/api/transaction')
+      .then(res => {
           if (!res.ok) throw new Error("API error: " + res.status);
           return res.json();
         })
@@ -195,10 +205,39 @@ export default function FinanceDashboard() {
           setLoading(false);   // hata olsa bile loading bitsin
         });
     },[]);
+    useEffect(() => {
+      const fetchNotifications = async () => {
+        try {
+          const userId = 1; // Gerçek uygulamada auth'dan gelecek
+          const response = await fetch(`http://localhost:5000/api/Notification/${userId}`);
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch notifications');
+          }
+          
+          const data = await response.json();
+          setNotifications(data);
+          
+          // Okunmamış bildirim sayısını hesapla
+          const unreadCount = data.filter((n: Notification) => !n.isRead).length;
+          setNotificationCount(unreadCount);
+        } catch (error) {
+          console.error('Error fetching notifications:', error);
+          setNotifications([]);
+        }
+      };
 
-      function getUserID(){
-        return localStorage.getItem('userID') || 'default-user-id';
-      }
+      fetchNotifications();
+
+      // Her 30 saniyede bir kontrol et
+      const interval = setInterval(fetchNotifications, 30000);
+
+      return () => clearInterval(interval);
+  }, []);
+
+    function getUserID(){
+      return localStorage.getItem('userID') || 'default-user-id';
+    }
 
 
 
@@ -384,6 +423,108 @@ export default function FinanceDashboard() {
           </div>
         </div>
       )}
+      {showNotificationModal && (
+        <div
+          className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
+          onClick={() => setShowNotificationModal(false)}
+        >
+          <div
+            className='bg-white rounded-2xl shadow-2xl w-[500px] max-h-[600px] relative'
+            onClick={(e)=> e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowNotificationModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-600 z-10"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-gray-800">Bildirimler</h2>
+              </div>
+            </div>
+
+            {/* Notifications List */}
+            <div className="overflow-y-auto max-h-[450px]">
+              {notifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                  <Bell size={48} className="mb-4 opacity-30" />
+                  <p className="text-lg">Henüz bildirim yok</p>
+                  <p className="text-sm">Yeni işlemler yaptığınızda burada görünecek</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {notifications.map((notification, index) => {
+                    const categoryEmojis: { [key: string]: string } = {
+                      'Achievement': '🎉',
+                      'Eco_Mobility': '🚇',
+                      'Eco_Energy': '⚡',
+                      'Eco_Consumption': '♻️',
+                      'Eco_Social': '🌳',
+                      'Info': 'ℹ️',
+                      'Warning': '⚠️',
+                    };
+
+                    const emoji = categoryEmojis[notification.category] || '📌';
+
+                    return (
+                      <div
+                        key={index}
+                        className={`p-4 hover:bg-gray-50 transition-colors ${
+                          !notification.isRead ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
+                            {emoji}
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-gray-800 font-medium mb-1">
+                              {notification.message}
+                            </p>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <span>
+                                {new Date(notification.createDate).toLocaleDateString('tr-TR', {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </span>
+                              <span>•</span>
+                              <span className="px-2 py-1 bg-green-100 text-green-800 rounded font-medium">
+                                {notification.category}
+                              </span>
+                            </div>
+                          </div>
+                          {!notification.isRead && (
+                            <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-2"></div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            {notifications.length > 0 && (
+              <div className="p-4 border-t border-gray-200 bg-gray-50">
+                <button
+                  onClick={() => setShowNotificationModal(false)}
+                  className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 font-semibold transition-colors"
+                >
+                  Kapat
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )
+
+      }
       {/* Category Info Modal */}
         {showCategoryInfo && selectedCategoryInfo && categoryInfo[selectedCategoryInfo] && (
           <div
@@ -483,9 +624,16 @@ export default function FinanceDashboard() {
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div> */}
-              <button className="relative p-2 hover:bg-gray-100 rounded-lg">
+              <button 
+                onClick={() => setShowNotificationModal(true)}
+                className="relative p-2 hover:bg-gray-100 rounded-lg"
+              >
                 <Bell size={20} />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                {notificationCount > 0 && (
+                  <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {notificationCount}
+                  </span>
+                )}
               </button>
             </div>
           </div>
