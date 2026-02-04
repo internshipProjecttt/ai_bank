@@ -233,7 +233,7 @@ export default function FinanceDashboard() {
           console.log(err);
           setLoading(false);   // hata olsa bile loading bitsin
         });
-    },[]);
+      },[selectedAccountId]);
     useEffect(() => {
       const fetchNotifications = async () => {
         try {
@@ -263,26 +263,24 @@ export default function FinanceDashboard() {
 
       return () => clearInterval(interval);
   }, []);
-    },[selectedAccountId]);
-
-    function getUserID(){
-      return localStorage.getItem('userID') || 'default-user-id';
-    }
-
-
 
   const filteredTransactions = selectedCategory === 'All Categories'
     ? transactions
     : transactions.filter(tx => tx.category === selectedCategory);
-
-  const displayedTransactions = showAllTransactions
+    
+    const displayedTransactions = showAllTransactions
     ? filteredTransactions
     : filteredTransactions.slice(0, 5);
+    
+    const handleCategoryInfoClick = (category: string) => {
+      setSelectedCategoryInfo(category);
+      setShowCategoryInfo(true);
+    };
 
-  const handleCategoryInfoClick = (category: string) => {
-    setSelectedCategoryInfo(category);
-    setShowCategoryInfo(true);
-  };
+   function getUserID(){
+      return localStorage.getItem('userID') || 'default-user-id';
+    }
+    
 
   return (
     <div className="flex h-screen bg-gray-50">
