@@ -105,7 +105,7 @@ namespace Bank_App.Controllers
             var accounts = user.UserAccounts?.Select(ua => (dynamic)new
             {
                 AccountId = ua.UserAccountId,  // ✅ UserAccountId
-                AccountName = $"Account #{ua.UserAccountId}",  
+                AccountName = $"Hesap #{ua.UserAccountId}",  
                 Balance = ua.Balance,
                 BonusPoints = ua.BonusPoints
             }).ToList() ?? new List<dynamic>();
