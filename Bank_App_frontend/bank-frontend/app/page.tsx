@@ -49,53 +49,53 @@ interface Notification {
 }
 
 const categoryInfo: { [key: string]: { title: string; description: string; examples: string[] } } = {
-  'Eco_Mobility': {
+  'Eko_Ulaşım': {
     title: '🚇 Yeşil Ulaşım',
-    description: 'Çevre dostu ulaşım seçenekleri ile karbon ayak izinizi azaltın ve EcoBonus kazanın!',
+    description: 'Çevre dostu ulaşım seçenekleri ile karbon ayak izinizi azaltın ve EkoBonus kazanın!',
     examples: ['Toplu taşıma kullanımı', 'Bisiklet paylaşım sistemleri', 'Elektrikli araç şarjı', 'Carpool/araç paylaşımı']
   },
-  'Eco_Energy': {
+  'Eko_Enerji': {
     title: '⚡ Enerji & Su Tasarrufu',
     description: 'Enerji ve su tasarrufu sağlayan akıllı harcamalarınızla bonus kazanın!',
     examples: ['Enerji tasarruflu cihazlar', 'LED ampul alımı', 'Akıllı termostat', 'Su tasarruflu ürünler']
   },
-  'Eco_Consumption': {
+  'Eko_Tüketim': {
     title: '♻️ Bilinçli Tüketim',
     description: 'Sürdürülebilir ve çevre dostu ürün tercihlerinizle ödüllendirilirsiniz!',
     examples: ['Organik ürünler', 'Yerel üreticilerden alışveriş', 'Sıfır atık mağazaları', 'İkinci el ürünler']
   },
-  'Eco_Social': {
+  'Eko_Sosyal': {
     title: '🌳 Çevresel Katkı',
     description: 'Çevre koruma ve sosyal sorumluluk projelerine katkılarınız ödüllendirilir!',
     examples: ['Ağaç dikimi bağışları', 'Çevre NGO\'larına destek', 'Geri dönüşüm projeleri', 'Temiz enerji yatırımları']
   },
-  'Daily': {
+  'Günlük Harcamalar': {
     title: '🍔 Günlük Harcamalar',
     description: 'Günlük yaşamınızdaki temel ihtiyaç harcamalarınız.',
     examples: ['Market alışverişi', 'Restoran ödemeleri', 'Kafe harcamaları', 'Küçük alışverişler']
   },
-  'Shopping': {
+  'Alışveriş': {
     title: '🛍️ Alışveriş',
     description: 'Giyim, elektronik ve diğer ürün alışverişleriniz.',
     examples: ['Giyim mağazaları', 'Elektronik alışverişi', 'Online alışveriş', 'Aksesuar']
   },
-  'Housing': {
+  'Konut & Faturalar': {
     title: '🏠 Konut & Faturalar',
     description: 'Ev ile ilgili sabit giderler ve faturalar.',
     examples: ['Kira ödemeleri', 'Elektrik faturası', 'Su faturası', 'İnternet faturası']
   },
-  'Travel': {
+  'Seyahat': {
     title: '✈️ Seyahat',
     description: 'Tatil ve seyahat harcamalarınız.',
     examples: ['Uçak bileti', 'Otel rezervasyonu', 'Tur paketleri', 'Vize işlemleri']
   },
-  'Finance': {
+  'Finans': {
     title: '💸 Finans',
     description: 'Finansal işlemler ve yatırımlar.',
     examples: ['Banka işlemleri', 'Yatırım', 'Sigorta ödemeleri', 'Kredi kartı ödemeleri']
   },
-  'Other': {
-    title: '📦 Diğer',
+  'Diğer Harcamalar': {
+    title: '📦 Diğer Harcamalar',
     description: 'Diğer kategorilere girmeyen harcamalar.',
     examples: ['Çeşitli harcamalar', 'Özel durumlar', 'Kategorize edilmemiş']
   }
@@ -104,7 +104,7 @@ const categoryInfo: { [key: string]: { title: string; description: string; examp
 
 export default function FinanceDashboard() {
 
-  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [selectedCategory, setSelectedCategory] = useState('Tüm Kategoriler');
   const [showCategoryInfo, setShowCategoryInfo] = useState(false);
   const [selectedCategoryInfo, setSelectedCategoryInfo] = useState<string | null>(null);  
   const [stats, setStats]= useState<DashboardStats | null>(null);
@@ -198,18 +198,18 @@ export default function FinanceDashboard() {
         .then(data => {
           const categoryIcons: { [key: string]: { icon: string; color: string } } = {
             // 🟢 EcoBonus Kategorileri (Pozitif Davranışlar)
-            'Eco_Mobility': { icon: '🚇', color: 'bg-green-100' },
-            'Eco_Energy': { icon: '⚡', color: 'bg-blue-100' },
-            'Eco_Consumption': { icon: '♻️', color: 'bg-emerald-100' },
-            'Eco_Social': { icon: '🌳', color: 'bg-lime-100' },
+            'Eko_Ulaşım': { icon: '🚇', color: 'bg-green-100' },
+            'Eko_Enerji': { icon: '⚡', color: 'bg-blue-100' },
+            'Eko_Tüketim': { icon: '♻️', color: 'bg-emerald-100' },
+            'Eko_Sosyal': { icon: '🌳', color: 'bg-lime-100' },
 
             // ⚪ Genel Harcama Kategorileri
-            'Daily': { icon: '🍔', color: 'bg-yellow-100' },
-            'Shopping': { icon: '🛍️', color: 'bg-pink-100' },
-            'Housing': { icon: '🏠', color: 'bg-orange-100' },
-            'Travel': { icon: '✈️', color: 'bg-sky-100' },
-            'Finance': { icon: '💸', color: 'bg-purple-100' },
-            'Other': { icon: '📦', color: 'bg-gray-100' },
+            'Günlük Harcamalar': { icon: '🍔', color: 'bg-yellow-100' },
+            'Alışveriş': { icon: '🛍️', color: 'bg-pink-100' },
+            'Konut & Faturalar': { icon: '🏠', color: 'bg-orange-100' },
+            'Seyahat': { icon: '✈️', color: 'bg-sky-100' },
+            'Finans': { icon: '💸', color: 'bg-purple-100' },
+            'Diğer Harcamalar': { icon: '📦', color: 'bg-gray-100' },
           };
 
           const mapped = data.map((item: any) => {
@@ -264,7 +264,7 @@ export default function FinanceDashboard() {
       return () => clearInterval(interval);
   }, []);
 
-  const filteredTransactions = selectedCategory === 'All Categories'
+  const filteredTransactions = selectedCategory === 'Tüm Kategoriler'
     ? transactions
     : transactions.filter(tx => tx.category === selectedCategory);
     
@@ -358,7 +358,7 @@ export default function FinanceDashboard() {
                   <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
                     <User size={16} className="text-indigo-600" />
                   </div>
-                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="text-sm text-gray-500">İsim</p>
                 </div>
                 <p className="text-gray-800 font-medium ml-11">{user.name}</p>
               </div>
@@ -368,7 +368,7 @@ export default function FinanceDashboard() {
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                     <span className="text-blue-600">📧</span>
                   </div>
-                  <p className="text-sm text-gray-500">E-mail</p>
+                  <p className="text-sm text-gray-500">E-posta</p>
                 </div>
                 <p className="text-gray-800 font-medium ml-11">{user.email}</p>
               </div>
@@ -378,9 +378,9 @@ export default function FinanceDashboard() {
               {/* Hesaplar Bölümü */}
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-800">My Accounts</h3>
+                <h3 className="text-lg font-bold text-gray-800">Hesaplarım</h3>
                 <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium">
-                  {user.accountCount} Account
+                  {user.accountCount} Hesap
                 </span>
               </div>
 
@@ -417,11 +417,8 @@ export default function FinanceDashboard() {
                       <div className="flex items-center justify-between pt-3 border-t border-indigo-200">
                         <div className="flex items-center gap-2">
                           <span className="text-yellow-500">⭐</span>
-                          <span className="text-sm text-gray-600">Bonus Points</span>
+                          <span className="text-sm text-gray-600">Bonus Puanlar</span>
                         </div>
-                        <span className="text-sm font-semibold text-indigo-600">
-                          {account.bonusPoints} Points
-                        </span>
                       </div>
 
                       <button 
@@ -431,27 +428,27 @@ export default function FinanceDashboard() {
                         }}
                         className="w-full mt-3 text-xs text-indigo-600 hover:text-indigo-800 font-medium text-center py-2 hover:bg-indigo-50 rounded transition-colors"
                       >
-                        {selectedAccountId === account.accountId ? '✓ Selected' : 'View Details →'}
+                        {selectedAccountId === account.accountId ? '✓ Seçildi' : 'Detayları Görüntüle →'}
                       </button>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-8 text-gray-500">
                     <CreditCard size={48} className="mx-auto mb-3 opacity-30" />
-                    <p>No accounts found</p>
+                    <p>Hesap bulunamadı</p>
                   </div>
                 )}
               </div>
             </div>
             <div className="mt-6 flex gap-3">
               <button className="flex-1 bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700">
-                Edit Profile
+                Profili Düzenle
               </button>
               <button
                 onClick={() => setShowUserModal(false)}
                 className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200"
               >
-                Close
+                Kapat
               </button>
             </div>
           </div>
@@ -491,13 +488,13 @@ export default function FinanceDashboard() {
                 <div className="divide-y divide-gray-100">
                   {notifications.map((notification, index) => {
                     const categoryEmojis: { [key: string]: string } = {
-                      'Achievement': '🎉',
-                      'Eco_Mobility': '🚇',
-                      'Eco_Energy': '⚡',
-                      'Eco_Consumption': '♻️',
-                      'Eco_Social': '🌳',
-                      'Info': 'ℹ️',
-                      'Warning': '⚠️',
+                      'Başarılar': '🎉',
+                      'Eko_Ulqşım': '🚇',
+                      'Eko_Enerji': '⚡',
+                      'Eko_Tüketim': '♻️',
+                      'Eko_Sosyal': '🌳',
+                      'Bilgi': 'ℹ️',
+                      'Uyarı': '⚠️',
                     };
 
                     const emoji = categoryEmojis[notification.category] || '📌';
@@ -600,14 +597,14 @@ export default function FinanceDashboard() {
                 </ul>
               </div>
 
-              {selectedCategoryInfo.startsWith('Eco_') && (
+              {selectedCategoryInfo.startsWith('Eko_') && (
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
                       <span className="text-white text-lg">🌟</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-green-800 mb-1">EcoBonus Kazanın!</h4>
+                      <h4 className="font-semibold text-green-800 mb-1">EkoBonus Kazanın!</h4>
                       <p className="text-sm text-green-700">
                         Bu kategorideki harcamalarınız için ekstra bonus puan kazanırsınız. 
                         Çevre dostu seçimlerinizle hem dünyaya katkıda bulunur, hem de ödüllendirilirsiniz!
@@ -645,7 +642,7 @@ export default function FinanceDashboard() {
 
               <div className="flex flex-col">
                 <h1 className="text-2xl font-bold text-gray-900">{user?.name}</h1>
-                <p className="text-sm text-gray-500">Welcome back, manage your finances!</p>
+                <p className="text-sm text-gray-500">Hoş geldiniz, finanslarınızı yönetin!</p>
               </div>
             </div>
 
@@ -685,7 +682,7 @@ export default function FinanceDashboard() {
                 {stats?.balanceChange && stats.balanceChange >= 0 ? "+" : "-"}{stats?.balanceChange}%
               </span>
             </div>
-            <p className="text-gray-500 text-sm">Total Balance</p>
+            <p className="text-gray-500 text-sm">Toplam Bakiye</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalBalance}</p>
           </div>
 
@@ -698,7 +695,7 @@ export default function FinanceDashboard() {
                 {stats?.incomeChange && stats.incomeChange >= 0 ? "+" : "-"}{stats?.incomeChange}%
               </span>
             </div>
-            <p className="text-gray-500 text-sm">Income</p>
+            <p className="text-gray-500 text-sm">Toplam Gelir</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalIncome}</p>
           </div>
 
@@ -711,7 +708,7 @@ export default function FinanceDashboard() {
                 {stats?.expensesChange && stats.expensesChange >= 0 ? "+" : "-"}{stats?.expensesChange}%
               </span>
             </div>
-            <p className="text-gray-500 text-sm">Expenses</p>
+            <p className="text-gray-500 text-sm">Toplam Gider</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalExpense}</p>
           </div>
 
@@ -724,7 +721,7 @@ export default function FinanceDashboard() {
                 {stats?.bonusChange && stats.bonusChange >= 0 ? "+" : "-"}{stats?.bonusChange}
               </span>
             </div>
-            <p className="text-gray-500 text-sm">Bonus Points</p>
+            <p className="text-gray-500 text-sm">Bonus Puanlar</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalBonusPoints}</p>
           </div>
         </div>
@@ -736,42 +733,42 @@ export default function FinanceDashboard() {
             {/* AI Assistant */}
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">AI Assistant</h3>
+                <h3 className="text-lg font-semibold">AI Asistanı</h3>
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-white rounded-full"></div>
                   <div className="w-2 h-2 bg-white rounded-full"></div>
                   <div className="w-2 h-2 bg-white rounded-full"></div>
                 </div>
               </div>
-              <p className="text-sm opacity-90 mb-6">Analyze your spending patterns with AI-powered insights</p>
+              <p className="text-sm opacity-90 mb-6"> AI destekli analizler</p>
               <button className="w-full bg-white text-indigo-600 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-                Start Analysis
+                Analizi Başlat
               </button>
             </div>
 
             {/* Face Recognition */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Recycling</h3>
+                <h3 className="font-semibold text-gray-900">Geri Dönüşüm</h3>
                 <Camera className="text-green-600" size={20} />
               </div>
-              <p className="text-sm text-gray-500 mb-6">Record yourself while throwing recyclables</p>
+              <p className="text-sm text-gray-500 mb-6">Yeniden dönüştürülebilir atıklarınızı atarken video kaydedin ve bonus puan kazanın!</p>
               <button className="w-full border border-green-600 bg-transparent text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition flex items-center justify-center space-x-2">
                 <Camera size={18} />
-                <span>Record Video</span>
+                <span>Video Kaydet</span>
               </button>
             </div>
 
             {/* Receipt Scanner */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Receipt Scanner</h3>
+                <h3 className="font-semibold text-gray-900">Fiş Tarayıcı</h3>
                 <Camera className="text-green-600" size={20} />
               </div>
-              <p className="text-sm text-gray-500 mb-6">Upload receipts and track expenses automatically</p>
+              <p className="text-sm text-gray-500 mb-6">Fişlerinizi yükleyin ve giderlerinizi bonusa dönüştürün!</p>
               <button className="w-full border border-green-600 bg-transparent text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition flex items-center justify-center space-x-2">
                 <Camera size={18} />
-                <span>Upload Receipt</span>
+                <span>Fiş Yükle</span>
               </button>
             </div>
 
@@ -800,39 +797,39 @@ export default function FinanceDashboard() {
             {/* Recent Transactions */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Son İşlemler</h3>
                 <div className="flex items-center space-x-3">
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                     className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
-                    <option>All Categories</option>
-                    <optgroup label="EcoBonus Categories">
-                      <option>Eco_Mobility</option>
-                      <option>Eco_Energy</option>
-                      <option>Eco_Consumption</option>
-                      <option>Eco_Social</option>
+                    <option>Tüm Kategoriler</option>
+                    <optgroup label="EkoBonus Kategorileri">
+                      <option>Eko_Ulaşım</option>
+                      <option>Eko_Enerji</option>
+                      <option>Eko_Tüketim</option>
+                      <option>Eko_Sosyal</option>
                     </optgroup>
-                    <optgroup label="General Categories">
-                      <option>Daily</option>
-                      <option>Shopping</option>
-                      <option>Housing</option>
-                      <option>Travel</option>
-                      <option>Finance</option>
-                      <option>Other</option>
+                    <optgroup label="Genel Kategoriler">
+                      <option>Günlük Harcamlar</option>
+                      <option>Alışveriş</option>
+                      <option>Konut&Faturalar</option>
+                      <option>Seyahat</option>
+                      <option>Finans</option>
+                      <option>Diğer</option>
                     </optgroup>
                   </select>
                   {/* Category Info Button */}
                   <button
                     onClick={() => {
-                      if (selectedCategory !== 'All Categories') {
+                      if (selectedCategory !== 'Tüm Kategoriler') {
                         handleCategoryInfoClick(selectedCategory);
                       }
                     }}
-                    disabled={selectedCategory === 'All Categories'}
+                    disabled={selectedCategory === 'Tüm Kategoriler'}
                     className={`p-2 rounded-lg transition-colors ${
-                      selectedCategory === 'All Categories'
+                      selectedCategory === 'Tüm Kategoriler'
                         ? 'text-gray-300 cursor-not-allowed'
                         : 'text-indigo-600 hover:bg-indigo-50'
                     }`}
@@ -875,7 +872,7 @@ export default function FinanceDashboard() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center text-gray-500 py-4">No transactions found</p>
+                  <p className="text-center text-gray-500 py-4">Hiç işlem bulunamadı</p>
                 )}
               </div>
 
@@ -884,7 +881,7 @@ export default function FinanceDashboard() {
                   onClick={() => setShowAllTransactions(true)}
                   className="w-full mt-4 text-indigo-600 font-semibold py-2 hover:bg-indigo-50 rounded-lg transition"
                 >
-                  View All Transactions →
+                  Tüm İşlemleri Görüntüle →
                 </button>
               )}
               {showAllTransactions && (
@@ -892,7 +889,7 @@ export default function FinanceDashboard() {
                   onClick={() => setShowAllTransactions(false)}
                   className="w-full mt-4 text-indigo-600 font-semibold py-2 hover:bg-indigo-50 rounded-lg transition"
                 >
-                  Show Less ↑
+                  Daha Az Göster →
                 </button>
               )}
             </div>
