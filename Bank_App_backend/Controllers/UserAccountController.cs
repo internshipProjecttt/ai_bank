@@ -75,6 +75,18 @@ namespace Bank_App.Controllers
             await _userAccountRepository.DeleteUserAccountAsync(id);
             return NoContent();
             //okey
+        }
+
+        [HttpPost("{accountId}/add-bonus")]
+        public async Task<IActionResult> AddBonus(
+            int accountId,
+            [FromBody] int bonusPoints)
+        {
+            if (bonusPoints <= 0)
+                return BadRequest("Bonus must be positive");
+
+            await _userAccountRepository.AddBonusAsync(accountId, bonusPoints);
+            return Ok(new { addedBonus = bonusPoints });
         }   
      }
 }
