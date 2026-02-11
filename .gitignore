@@ -89,3 +89,4 @@ appsettings.*.json
 # Environment variables
 .env
 .env.local
+venv/
