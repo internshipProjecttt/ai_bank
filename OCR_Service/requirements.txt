@@ -1,0 +1,7 @@
+Flask==3.1.2
+flask-cors==6.0.2
+numpy==2.4.2
+opencv-python==4.13.0.92
+pytesseract==0.3.13
+RapidFuzz==3.14.3
+Pillow==12.1.1

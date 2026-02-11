@@ -163,8 +163,8 @@ namespace Bank_App.Controllers
         private int CalculateBonusPoints(LabelMaterialDto materials)
         {
             int bonus=0;
-            var main_fabric = materials.MainFabric;
-            List<string> fabrics= materials.Fabrics;
+            var main_fabric = materials.MainFabric?.Material?.ToUpper() ?? "";
+            var fabrics = materials.Fabrics.Select(f => f.Material).ToList();
 
             if (GreenMaterials.Contains(main_fabric.ToUpper()))
             {
