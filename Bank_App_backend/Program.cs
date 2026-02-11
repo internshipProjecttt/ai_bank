@@ -19,6 +19,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>(); 
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddHttpClient();
 
 builder.Services.AddCors(options =>
 {

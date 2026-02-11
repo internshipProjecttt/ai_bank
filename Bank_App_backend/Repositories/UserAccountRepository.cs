@@ -71,6 +71,19 @@ namespace Bank_App.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task AddBonusAsync(int accountId, int bonus)
+        {
+            var account = await _context.UserAccounts
+                .FirstOrDefaultAsync(a => a.UserAccountId == accountId);
+
+            if (account == null)
+                throw new Exception("Account not found");
+
+            account.BonusPoints += bonus;
+            await _context.SaveChangesAsync();
+        }
+
+
 
     }
 }

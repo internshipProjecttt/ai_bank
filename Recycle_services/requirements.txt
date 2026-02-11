@@ -1,0 +1,12 @@
+numpy<2
+opencv-python==4.8.1.78
+torch==2.1.0
+ultralytics
+flask
+pillow
+pytesseract
+
+# /usr/local/bin/python3.10 -m venv venv
+# source venv/bin/activate
+# pip install -r requirements.txt
+# python3 app.py
