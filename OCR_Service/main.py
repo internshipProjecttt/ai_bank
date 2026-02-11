@@ -83,7 +83,7 @@ def processLabel():
         img = get_image_from_request()
 
         # 2. OCR işlemi - IMAGE GÖNDERİYORUZ
-        result = label_ocr.extractInfo(img)  # ✅ img (numpy array)
+        result = label_ocr.extractFabricInfo(img)  # ✅ img (numpy array)
 
         # 3. JSON döndür
         return jsonify({
@@ -108,3 +108,8 @@ def processLabel():
 if __name__ == '__main__':
     print("🚀 OCR Service starting on http://localhost:5001")
     app.run(host='0.0.0.0', port=5001, debug=True)
+""" 
+venv için
+    python -m venv venv
+venv\Scripts\activate   # Windows
+pip install -r requirements.txt """

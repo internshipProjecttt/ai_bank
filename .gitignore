@@ -89,3 +89,11 @@ appsettings.*.json
 # Environment variables
 .env
 .env.local
+
+# Python virtual environment
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
