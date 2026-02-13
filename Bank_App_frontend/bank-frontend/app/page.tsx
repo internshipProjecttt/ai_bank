@@ -287,7 +287,7 @@ export default function FinanceDashboard() {
     
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gradient-to-b from-indigo-50 to-white">
       {/* Sidebar */}
       {/* <div className="w-16 bg-indigo-700 flex flex-col items-center py-6 space-y-8"> */}
 

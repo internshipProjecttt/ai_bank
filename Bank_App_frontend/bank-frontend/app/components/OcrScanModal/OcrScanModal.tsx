@@ -52,7 +52,7 @@ function StepIndicator({ currentStep }: { currentStep: Step }) {
                 i < current
                   ? 'bg-green-500 border-green-500 text-white'
                   : i === current
-                  ? 'bg-indigo-600 border-indigo-600 text-white scale-110'
+                  ? 'bg-green-600 border-green-600 text-white scale-110'
                   : 'bg-gray-100 border-gray-300 text-gray-400'
               }`}
             >
@@ -60,7 +60,7 @@ function StepIndicator({ currentStep }: { currentStep: Step }) {
             </div>
             <span
               className={`text-xs mt-1 font-medium ${
-                i === current ? 'text-indigo-600' : i < current ? 'text-green-600' : 'text-gray-400'
+                i === current ? 'text-green-600' : i < current ? 'text-green-600' : 'text-gray-400'
               }`}
             >
               {step.label}
@@ -109,7 +109,7 @@ function ImageUploadArea({
       onDrop={handleDrop}
       onDragOver={(e) => e.preventDefault()}
       className={`relative border-2 border-dashed rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer
-        ${preview ? 'border-indigo-400 bg-indigo-50' : 'border-gray-300 bg-gray-50 hover:border-indigo-400 hover:bg-indigo-50'}
+        ${preview ? 'border-green-400 bg-green-50' : 'border-gray-300 bg-gray-50 hover:border-green-400 hover:bg-green-50'}
         ${loading ? 'opacity-60 cursor-not-allowed' : ''}
       `}
       style={{ minHeight: 220 }}
@@ -141,13 +141,13 @@ function ImageUploadArea({
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-          <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mb-4">
-            <Upload className="text-indigo-500" size={28} />
+          <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-4">
+            <Upload className="text-green-500" size={28} />
           </div>
           <p className="text-gray-700 font-semibold mb-1">{label}</p>
           <p className="text-gray-400 text-sm">Galeriden seç</p>
           <div className="flex items-center gap-2 mt-4">
-            <span className="flex items-center gap-1 text-xs text-indigo-500 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+            <span className="flex items-center gap-1 text-xs text-green-500 bg-green-50 px-3 py-1 rounded-full border border-green-100">
               <Upload size={13} /> Dosya
             </span>
           </div>
@@ -157,8 +157,8 @@ function ImageUploadArea({
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 rounded-2xl">
           <div className="flex flex-col items-center gap-2">
-            <Loader2 className="animate-spin text-indigo-500" size={32} />
-            <span className="text-sm text-indigo-600 font-medium">İşleniyor...</span>
+            <Loader2 className="animate-spin text-green-500" size={32} />
+            <span className="text-sm text-green-600 font-medium">İşleniyor...</span>
           </div>
         </div>
       )}
@@ -290,8 +290,8 @@ export default function OcrScanModalContent() {
           {step === 'upload_receipt' && (
             <div className="space-y-5">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-                  <Receipt className="text-indigo-600" size={20} />
+                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                  <Receipt className="text-green-500" size={20} />
                 </div>
                 <div>
                   <h2 className="font-semibold text-gray-900">Fişi Yükle</h2>
@@ -316,7 +316,7 @@ export default function OcrScanModalContent() {
               <button
                 onClick={handleReceiptSubmit}
                 disabled={!receiptFile || loading}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full from-green-500 via-green-600 to-emerald-600 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
@@ -408,7 +408,7 @@ export default function OcrScanModalContent() {
                 </button>
                 <button
                   onClick={() => setStep('upload_label')}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition"
+                  className="flex-1 from-green-500 via-green-600 to-emerald-600 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition"
                 >
                   Etiket Tara
                   <ArrowRight size={18} />
@@ -555,7 +555,7 @@ export default function OcrScanModalContent() {
 
               <button
                 onClick={handleReset}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition"
+                className="w-full from-green-500 via-green-600 to-emerald-600 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition"
               >
                 Yeni Tarama Başlat
               </button>
