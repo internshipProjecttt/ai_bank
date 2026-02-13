@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, TrendingUp, TrendingDown, DollarSign, CreditCard, Plus, Camera, Scan, User, BarChart3, Home, FileText, Lock, Settings, X } from 'lucide-react';
+import { Search, Bell, TrendingUp, TrendingDown, DollarSign, CreditCard, Plus, Camera, Scan, User, BarChart3, Home, FileText, Lock, Settings, X, Recycle, Receipt, ReceiptEuroIcon, ReceiptTextIcon, ReceiptTurkishLira, LucideRecycle, RecycleIcon, Video } from 'lucide-react';
 import {Info, HelpCircle } from 'lucide-react';
+import OcrScanModal from './components/OcrScanModal';
 
 interface DashboardStats{
   accountId: number;
@@ -104,6 +105,7 @@ const categoryInfo: { [key: string]: { title: string; description: string; examp
 
 export default function FinanceDashboard() {
 
+  const [showOcrModal, setShowOcrModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Tüm Kategoriler');
   const [showCategoryInfo, setShowCategoryInfo] = useState(false);
   const [selectedCategoryInfo, setSelectedCategoryInfo] = useState<string | null>(null);  
@@ -554,8 +556,17 @@ export default function FinanceDashboard() {
           </div>
         </div>
       )
-
       }
+      {showOcrModal && (
+        <OcrScanModal
+          isOpen={showOcrModal}
+          onClose={() => {
+            setShowOcrModal(false);
+            window.location.reload(); // basit ama etkili
+          }}
+          accountId={selectedAccountId ?? 1}
+        />
+      )}
       {/* Category Info Modal */}
         {showCategoryInfo && selectedCategoryInfo && categoryInfo[selectedCategoryInfo] && (
           <div
@@ -673,52 +684,56 @@ export default function FinanceDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-4 gap-6 p-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-6 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             <div className="flex items-center justify-between mb-2">
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                 <DollarSign className="text-green-600" size={20} />
               </div>
               <span className={stats?.balanceChange && stats.balanceChange >= 0 ? "text-green-600" : "text-red-600"}>
-                {stats?.balanceChange && stats.balanceChange >= 0 ? "+" : "-"}{stats?.balanceChange}%
+                {stats?.balanceChange}%
               </span>
             </div>
             <p className="text-gray-500 text-sm">Toplam Bakiye</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalBalance}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-6 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             <div className="flex items-center justify-between mb-2">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                 <TrendingUp className="text-blue-600" size={20} />
               </div>
               <span className={stats?.incomeChange && stats.incomeChange >= 0 ? "text-blue-600" : "text-red-600"}>
-                {stats?.incomeChange && stats.incomeChange >= 0 ? "+" : "-"}{stats?.incomeChange}%
+                {stats?.incomeChange}%
               </span>
             </div>
             <p className="text-gray-500 text-sm">Toplam Gelir</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalIncome}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-6 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             <div className="flex items-center justify-between mb-2">
               <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                 <TrendingDown className="text-red-600" size={20} />
               </div>
               <span className={stats?.expensesChange && stats.expensesChange >= 0 ? "text-red-600" : "text-green-600"}>
-                {stats?.expensesChange && stats.expensesChange >= 0 ? "+" : "-"}{stats?.expensesChange}%
+                {stats?.expensesChange}%
               </span>
             </div>
             <p className="text-gray-500 text-sm">Toplam Gider</p>
             <p className="text-2xl font-bold text-gray-900">{stats?.totalExpense}</p>
           </div>
 
-         <div className="bg-white rounded-xl p-6 shadow-sm">
+         <div className="bg-white rounded-xl p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
             <div className="flex items-center justify-between mb-2">
               <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
                 <span className="text-2xl">⭐</span>
               </div>
               <span className={stats?.bonusChange && stats.bonusChange >= 0 ? "text-yellow-600" : "text-red-600"}>
-                {stats?.bonusChange && stats.bonusChange >= 0 ? "+" : "-"}{stats?.bonusChange}
+                {stats?.bonusChange}%
               </span>
             </div>
             <p className="text-gray-500 text-sm">Bonus Puanlar</p>
@@ -731,7 +746,7 @@ export default function FinanceDashboard() {
           {/* Left Column - AI Assistant, Face Recognition, Receipt Scanner, Spending */}
           <div className="col-span-1 space-y-6">
             {/* AI Assistant */}
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white">
+            {/* <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">AI Asistanı</h3>
                 <div className="flex space-x-1">
@@ -744,29 +759,33 @@ export default function FinanceDashboard() {
               <button className="w-full bg-white text-indigo-600 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
                 Analizi Başlat
               </button>
-            </div>
+            </div> */}
 
             {/* Face Recognition */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm relative overflow-hidden">
+              {/* <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div> */}
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900">Geri Dönüşüm</h3>
-                <Camera className="text-green-600" size={20} />
+                <RecycleIcon className="text-green-600" size={20} />
               </div>
               <p className="text-sm text-gray-500 mb-6">Yeniden dönüştürülebilir atıklarınızı atarken video kaydedin ve bonus puan kazanın!</p>
               <button className="w-full border border-green-600 bg-transparent text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition flex items-center justify-center space-x-2">
-                <Camera size={18} />
+                <Video size={18} />
                 <span>Video Kaydet</span>
               </button>
             </div>
 
             {/* Receipt Scanner */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm relative overflow-hidden">
+              {/* <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500"></div> */}
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900">Fiş Tarayıcı</h3>
-                <Camera className="text-green-600" size={20} />
+                <ReceiptTextIcon className="text-green-600" size={20} />
               </div>
               <p className="text-sm text-gray-500 mb-6">Fişlerinizi yükleyin ve giderlerinizi bonusa dönüştürün!</p>
-              <button className="w-full border border-green-600 bg-transparent text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition flex items-center justify-center space-x-2">
+              <button
+                onClick={() => setShowOcrModal(true)}  // ← sadece bu satır eklendi
+                className="w-full border border-green-600 bg-transparent text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition flex items-center justify-center space-x-2">
                 <Camera size={18} />
                 <span>Fiş Yükle</span>
               </button>
