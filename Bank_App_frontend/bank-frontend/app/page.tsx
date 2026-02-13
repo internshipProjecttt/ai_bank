@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Bell, TrendingUp, TrendingDown, DollarSign, CreditCard, Plus, Camera, Scan, User, BarChart3, Home, FileText, Lock, Settings, X } from 'lucide-react';
 import {Info, HelpCircle } from 'lucide-react';
+import RecyclingBonusCard from './components/RecyclingBonusCard';
+
 
 interface DashboardStats{
   accountId: number;
@@ -746,18 +748,8 @@ export default function FinanceDashboard() {
               </button>
             </div>
 
-            {/* Face Recognition */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Geri Dönüşüm</h3>
-                <Camera className="text-green-600" size={20} />
-              </div>
-              <p className="text-sm text-gray-500 mb-6">Yeniden dönüştürülebilir atıklarınızı atarken video kaydedin ve bonus puan kazanın!</p>
-              <button className="w-full border border-green-600 bg-transparent text-green-600 py-3 rounded-lg font-semibold hover:bg-green-50 transition flex items-center justify-center space-x-2">
-                <Camera size={18} />
-                <span>Video Kaydet</span>
-              </button>
-            </div>
+            {/* Recycling */}
+            <RecyclingBonusCard userAccountId={selectedAccountId || 0} />
 
             {/* Receipt Scanner */}
             <div className="bg-white rounded-xl p-6 shadow-sm">
